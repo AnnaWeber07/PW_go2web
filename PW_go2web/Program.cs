@@ -13,6 +13,8 @@ namespace Go2Web
     {
 
         static Dictionary<string, string> cache = new Dictionary<string, string>();
+        static HtmlDocument document = new();
+
         static void Main(string[] args)
         {
             while (true)
@@ -122,10 +124,16 @@ namespace Go2Web
             // Parse HTML response and convert to human-readable format
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(response);
+            document = doc;
             string parsedResponse = doc.DocumentNode.InnerText.Trim();
             parsedResponse = HttpUtility.HtmlDecode(parsedResponse);
 
             return parsedResponse;
+        }
+        static HtmlDocument ResultOfSearch() //method used to compose and send a http request and get the necessary HTML page
+        {
+            HtmlDocument savedResult = document;
+            return savedResult;
         }
 
 
@@ -147,24 +155,22 @@ namespace Go2Web
         static List<string> HandleSearch(string searchRes)
         {
             string searchUrl = GetSearchUrl(searchRes);
-            string searchPage = ComposeHttpRequest(searchUrl);
+            HtmlDocument searchPage = ResultOfSearch();
 
             // Parse search results from HTML page
             List<string> results = new List<string>();
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(searchPage);
-            var selectedNodes = doc.DocumentNode.SelectNodes("//h3[@class='LC20lb DKV0Md']//a");
-            if (selectedNodes == null)
-                Console.WriteLine("Null ref");
-            else
-            foreach (HtmlNode node in selectedNodes)
-            {
-                string title = node.InnerText;
-                string url = node.GetAttributeValue("href", "");
-                results.Add($"{title} - {url}");
-            }
+            //var selectedNodes = searchPage.DocumentNode.SelectNodes("//h3[@class='LC20lb DKV0Md']//a");
+            //if (selectedNodes == null)
+            //    Console.WriteLine("XPath query does not match any nodes in the HTML document. Null");
+            //else
+            //foreach (HtmlNode node in searchPage)
+            //{
+            //    string title = node.InnerText;
+            //    string url = node.GetAttributeValue("href", "");
+            //    results.Add($"{title} - {url}");
+            //}
 
-            return results.Count > 0 ? results : new List<string>() { "No search results found." };
+           return results.Count > 0 ? results : new List<string>() { "No search results found." };
         }
 
 
