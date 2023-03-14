@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Formatting = Newtonsoft.Json.Formatting;
 using System.Web;
 using HtmlAgilityPack;
+using System.Net.Http;
 
 namespace Go2Web
 {
@@ -130,11 +131,6 @@ namespace Go2Web
 
             return parsedResponse;
         }
-        static HtmlDocument ResultOfSearch() //method used to compose and send a http request and get the necessary HTML page
-        {
-            HtmlDocument savedResult = document;
-            return savedResult;
-        }
 
 
         private static void AddToCache(string link, string response)
@@ -155,22 +151,42 @@ namespace Go2Web
         static List<string> HandleSearch(string searchRes)
         {
             string searchUrl = GetSearchUrl(searchRes);
-            HtmlDocument searchPage = ResultOfSearch();
+            string stringPage = ComposeHttpRequest(searchUrl);
+            HtmlDocument searchPage = document;
 
             // Parse search results from HTML page
             List<string> results = new List<string>();
-            //var selectedNodes = searchPage.DocumentNode.SelectNodes("//h3[@class='LC20lb DKV0Md']//a");
-            //if (selectedNodes == null)
-            //    Console.WriteLine("XPath query does not match any nodes in the HTML document. Null");
+           // var selectedNodes = searchPage.DocumentNode.SelectNodes("//h3[@class='LC20lb DKV0Md']//a");
+           // if (selectedNodes == null)
+           ///     Console.WriteLine("XPath query does not match any nodes in the HTML document. Null");
             //else
-            //foreach (HtmlNode node in searchPage)
-            //{
-            //    string title = node.InnerText;
-            //    string url = node.GetAttributeValue("href", "");
-            //    results.Add($"{title} - {url}");
-            //}
+            //    foreach (HtmlNode node in selectedNodes)
+            //    {
+            //        string title = node.InnerText;
+            //        string url = node.GetAttributeValue("href", "");
+            //        results.Add($"{title} - {url}");
+            //    }
+
+           // else
+                searchPage.LoadHtml(stringPage);
+            var searchResultLinks = searchPage.DocumentNode.Descendants("a")
+                .Where(d => d.Attributes
+                .Contains("href") && d.Attributes["href"].Value
+                .Contains("/url?q="));
+
+            // Extract the text from each search result link
+            foreach (var link in searchResultLinks)
+            {
+                string text = link.InnerText;
+                Console.WriteLine(text);
+            }
 
            return results.Count > 0 ? results : new List<string>() { "No search results found." };
+
+            Console.WriteLine(searchPage);
+            results.Add(stringPage);
+
+            return results;
         }
 
 
@@ -293,6 +309,5 @@ namespace Go2Web
         //-u won't work with bigger websites:
         //The TcpClient class and the HttpClient class are both used to make network requests,
         //but they operate at different layers of the network stack and have different functionalities.
-
     }
 }
