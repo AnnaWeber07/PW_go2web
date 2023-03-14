@@ -11,8 +11,8 @@ namespace Go2Web
 {
     class Program
     {
-        static Dictionary<string, string> cache = new Dictionary<string, string>();
 
+        static Dictionary<string, string> cache = new Dictionary<string, string>();
         static void Main(string[] args)
         {
             while (true)
@@ -153,7 +153,11 @@ namespace Go2Web
             List<string> results = new List<string>();
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(searchPage);
-            foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//h3[@class='LC20lb DKV0Md']//a"))
+            var selectedNodes = doc.DocumentNode.SelectNodes("//h3[@class='LC20lb DKV0Md']//a");
+            if (selectedNodes == null)
+                Console.WriteLine("Null ref");
+            else
+            foreach (HtmlNode node in selectedNodes)
             {
                 string title = node.InnerText;
                 string url = node.GetAttributeValue("href", "");
