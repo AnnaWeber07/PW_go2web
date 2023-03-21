@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 using Formatting = Newtonsoft.Json.Formatting;
 using System.Web;
 using HtmlAgilityPack;
-using System.Net.Http;
 
 namespace Go2Web
 {
